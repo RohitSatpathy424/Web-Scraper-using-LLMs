@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraper with LLaMA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 700px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+        h1 {
+            color: #007BFF;
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .content-box {
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            text-align: left;
+        }
+        .scroll-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+        }
+        .scroll-button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Web Scraper with LLaMA</h1>
+        <input type="text" id="urlInput" placeholder="Enter website URL here">
+        <button onclick="scrapeWebsite()">Scrape Website</button>
+
+        <h2>Scraped Content:</h2>
+        <div id="scrapedText" class="content-box">Waiting for content...</div>
+
+        <h2>Ask a Question:</h2>
+        <input type="text" id="questionInput" placeholder="Enter your question here">
+        <button onclick="askQuestion()">Ask</button>
+
+        <h2>Answer:</h2>
+        <div id="answerText" class="content-box">Waiting for answer...</div>
+    </div>
+
+    <button class="scroll-button" onclick="scrollToTop()">&#8679;</button>
+
+    <script>
+        function scrapeWebsite() {
+            let url = document.getElementById("urlInput").value;
+            if (!url) {
+                alert("Please enter a URL.");
+                return;
+            }
+
+            fetch('/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("scrapedText").textContent = data.scraped_text || "No content found.";
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function askQuestion() {
+            let question = document.getElementById("questionInput").value;
+            if (!question) {
+                alert("Please enter a question.");
+                return;
+            }
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("answerText").textContent = data.answer || "No answer generated.";
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        window.addEventListener("scroll", function() {
+            let scrollButton = document.querySelector(".scroll-button");
+            if (window.scrollY > 200) {
+                scrollButton.style.display = "block";
+            } else {
+                scrollButton.style.display = "none";
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    </script>
+</body>
+</html>
